@@ -8,14 +8,14 @@ import {
   Delete,
   Query,
   ParseIntPipe,
-} from '@nestjs/common';
-import { MoviesService } from './movies.service';
-import { CreateMovieDto } from './dto/create-movie.dto';
-import { UpdateMovieDto } from './dto/update-movie.dto';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
-import { Public } from '../common/decorators/public.decorator';
+} from "@nestjs/common";
+import { MoviesService } from "./movies.service";
+import { CreateMovieDto } from "./dto/create-movie.dto";
+import { UpdateMovieDto } from "./dto/update-movie.dto";
+import { PaginationQueryDto } from "../common/dto/pagination-query.dto";
+import { Public } from "../common/decorators/public.decorator";
 
-@Controller('movies')
+@Controller("movies")
 export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
 
@@ -26,14 +26,14 @@ export class MoviesController {
   }
 
   @Public()
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  @Get(":id")
+  findOne(@Param("id", ParseIntPipe) id: number) {
     return this.moviesService.findOne(id);
   }
 
   @Public()
-  @Get(':id/actors')
-  getActors(@Param('id', ParseIntPipe) id: number) {
+  @Get(":id/actors")
+  getActors(@Param("id", ParseIntPipe) id: number) {
     return this.moviesService.getActors(id);
   }
 
@@ -42,16 +42,16 @@ export class MoviesController {
     return this.moviesService.create(createMovieDto);
   }
 
-  @Patch(':id')
+  @Patch(":id")
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param("id", ParseIntPipe) id: number,
     @Body() updateMovieDto: UpdateMovieDto,
   ) {
     return this.moviesService.update(id, updateMovieDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  @Delete(":id")
+  remove(@Param("id", ParseIntPipe) id: number) {
     return this.moviesService.remove(id);
   }
 }

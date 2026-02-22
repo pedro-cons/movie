@@ -1,12 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { RatingsService } from './ratings.service';
-import { Rating } from './entities/rating.entity';
-import { Movie } from '../movies/entities/movie.entity';
-import { CreateRatingDto } from './dto/create-rating.dto';
-import { UpdateRatingDto } from './dto/update-rating.dto';
+import { Test, TestingModule } from "@nestjs/testing";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { NotFoundException } from "@nestjs/common";
+import { Repository } from "typeorm";
+import { RatingsService } from "./ratings.service";
+import { Rating } from "./entities/rating.entity";
+import { Movie } from "../movies/entities/movie.entity";
+import { CreateRatingDto } from "./dto/create-rating.dto";
+import { UpdateRatingDto } from "./dto/update-rating.dto";
 
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
 
@@ -18,7 +18,7 @@ const createMockRepository = <T>(): MockRepository<T> => ({
   remove: jest.fn(),
 });
 
-describe('RatingsService', () => {
+describe("RatingsService", () => {
   let service: RatingsService;
   let ratingsRepository: MockRepository<Rating>;
   let moviesRepository: MockRepository<Movie>;
@@ -39,19 +39,23 @@ describe('RatingsService', () => {
     }).compile();
 
     service = module.get<RatingsService>(RatingsService);
-    ratingsRepository = module.get<MockRepository<Rating>>(getRepositoryToken(Rating));
-    moviesRepository = module.get<MockRepository<Movie>>(getRepositoryToken(Movie));
+    ratingsRepository = module.get<MockRepository<Rating>>(
+      getRepositoryToken(Rating),
+    );
+    moviesRepository = module.get<MockRepository<Movie>>(
+      getRepositoryToken(Movie),
+    );
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('findAll', () => {
-    it('returns paginated ratings without movieId filter', async () => {
+  describe("findAll", () => {
+    it("returns paginated ratings without movieId filter", async () => {
       const ratings = [
-        { id: 1, value: 8, comment: 'Great', movieId: 1 },
-        { id: 2, value: 5, comment: 'Average', movieId: 2 },
+        { id: 1, value: 8, comment: "Great", movieId: 1 },
+        { id: 2, value: 5, comment: "Average", movieId: 2 },
       ];
       ratingsRepository.findAndCount.mockResolvedValue([ratings, 2]);
 
@@ -59,16 +63,16 @@ describe('RatingsService', () => {
 
       expect(ratingsRepository.findAndCount).toHaveBeenCalledWith({
         where: {},
-        relations: ['movie'],
+        relations: ["movie"],
         skip: 0,
         take: 10,
-        order: { createdAt: 'DESC' },
+        order: { createdAt: "DESC" },
       });
       expect(result).toEqual({ data: ratings, total: 2, page: 1, limit: 10 });
     });
 
-    it('filters by movieId when provided', async () => {
-      const ratings = [{ id: 1, value: 8, comment: 'Great', movieId: 1 }];
+    it("filters by movieId when provided", async () => {
+      const ratings = [{ id: 1, value: 8, comment: "Great", movieId: 1 }];
       ratingsRepository.findAndCount.mockResolvedValue([ratings, 1]);
 
       const result = await service.findAll({ page: 1, limit: 10, movieId: 1 });
@@ -79,7 +83,7 @@ describe('RatingsService', () => {
       expect(result.total).toBe(1);
     });
 
-    it('calculates skip offset correctly for page 2', async () => {
+    it("calculates skip offset correctly for page 2", async () => {
       ratingsRepository.findAndCount.mockResolvedValue([[], 0]);
 
       await service.findAll({ page: 2, limit: 5 });
@@ -89,7 +93,7 @@ describe('RatingsService', () => {
       );
     });
 
-    it('uses default page and limit when not provided', async () => {
+    it("uses default page and limit when not provided", async () => {
       ratingsRepository.findAndCount.mockResolvedValue([[], 0]);
 
       const result = await service.findAll({});
@@ -98,7 +102,7 @@ describe('RatingsService', () => {
       expect(result.limit).toBe(10);
     });
 
-    it('returns empty data array when no ratings exist', async () => {
+    it("returns empty data array when no ratings exist", async () => {
       ratingsRepository.findAndCount.mockResolvedValue([[], 0]);
 
       const result = await service.findAll({ page: 1, limit: 10 });
@@ -108,39 +112,51 @@ describe('RatingsService', () => {
     });
   });
 
-  describe('findOne', () => {
-    it('returns a rating when found by id', async () => {
-      const rating = { id: 1, value: 8, comment: 'Great', movieId: 1, movie: { id: 1 } };
+  describe("findOne", () => {
+    it("returns a rating when found by id", async () => {
+      const rating = {
+        id: 1,
+        value: 8,
+        comment: "Great",
+        movieId: 1,
+        movie: { id: 1 },
+      };
       ratingsRepository.findOne.mockResolvedValue(rating);
 
       const result = await service.findOne(1);
 
       expect(ratingsRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ['movie'],
+        relations: ["movie"],
       });
       expect(result).toEqual(rating);
     });
 
-    it('throws NotFoundException when rating does not exist', async () => {
+    it("throws NotFoundException when rating does not exist", async () => {
       ratingsRepository.findOne.mockResolvedValue(null);
 
       await expect(service.findOne(999)).rejects.toThrow(
-        new NotFoundException('Rating with ID 999 not found'),
+        new NotFoundException("Rating with ID 999 not found"),
       );
     });
 
-    it('throws NotFoundException with the correct id in the message', async () => {
+    it("throws NotFoundException with the correct id in the message", async () => {
       ratingsRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.findOne(42)).rejects.toThrow('Rating with ID 42 not found');
+      await expect(service.findOne(42)).rejects.toThrow(
+        "Rating with ID 42 not found",
+      );
     });
   });
 
-  describe('create', () => {
-    it('creates a rating after verifying the movie exists', async () => {
-      const movie = { id: 1, title: 'Inception' };
-      const dto: CreateRatingDto = { value: 9, comment: 'Masterpiece', movieId: 1 };
+  describe("create", () => {
+    it("creates a rating after verifying the movie exists", async () => {
+      const movie = { id: 1, title: "Inception" };
+      const dto: CreateRatingDto = {
+        value: 9,
+        comment: "Masterpiece",
+        movieId: 1,
+      };
       const created = { id: 1, ...dto, movie };
 
       moviesRepository.findOne.mockResolvedValue(movie);
@@ -149,22 +165,24 @@ describe('RatingsService', () => {
 
       const result = await service.create(dto);
 
-      expect(moviesRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(moviesRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
       expect(ratingsRepository.create).toHaveBeenCalledWith(dto);
       expect(ratingsRepository.save).toHaveBeenCalledWith(created);
       expect(result).toEqual(created);
     });
 
-    it('throws NotFoundException when the referenced movie does not exist', async () => {
-      const dto: CreateRatingDto = { value: 7, comment: 'Good', movieId: 999 };
+    it("throws NotFoundException when the referenced movie does not exist", async () => {
+      const dto: CreateRatingDto = { value: 7, comment: "Good", movieId: 999 };
       moviesRepository.findOne.mockResolvedValue(null);
 
       await expect(service.create(dto)).rejects.toThrow(
-        new NotFoundException('Movie with ID 999 not found'),
+        new NotFoundException("Movie with ID 999 not found"),
       );
     });
 
-    it('does not create a rating when the movie is not found', async () => {
+    it("does not create a rating when the movie is not found", async () => {
       const dto: CreateRatingDto = { value: 5, movieId: 999 };
       moviesRepository.findOne.mockResolvedValue(null);
 
@@ -174,8 +192,8 @@ describe('RatingsService', () => {
       expect(ratingsRepository.save).not.toHaveBeenCalled();
     });
 
-    it('creates a rating with minimum valid value of 1', async () => {
-      const movie = { id: 1, title: 'Inception' };
+    it("creates a rating with minimum valid value of 1", async () => {
+      const movie = { id: 1, title: "Inception" };
       const dto: CreateRatingDto = { value: 1, movieId: 1 };
       const created = { id: 1, ...dto };
 
@@ -188,8 +206,8 @@ describe('RatingsService', () => {
       expect(result.value).toBe(1);
     });
 
-    it('creates a rating with maximum valid value of 10', async () => {
-      const movie = { id: 1, title: 'Inception' };
+    it("creates a rating with maximum valid value of 10", async () => {
+      const movie = { id: 1, title: "Inception" };
       const dto: CreateRatingDto = { value: 10, movieId: 1 };
       const created = { id: 1, ...dto };
 
@@ -203,10 +221,16 @@ describe('RatingsService', () => {
     });
   });
 
-  describe('update', () => {
-    it('updates rating fields and saves', async () => {
-      const existingRating = { id: 1, value: 7, comment: 'Good', movieId: 1, movie: { id: 1 } };
-      const dto: UpdateRatingDto = { value: 9, comment: 'Excellent' };
+  describe("update", () => {
+    it("updates rating fields and saves", async () => {
+      const existingRating = {
+        id: 1,
+        value: 7,
+        comment: "Good",
+        movieId: 1,
+        movie: { id: 1 },
+      };
+      const dto: UpdateRatingDto = { value: 9, comment: "Excellent" };
       const saved = { ...existingRating, ...dto };
 
       ratingsRepository.findOne.mockResolvedValue(existingRating);
@@ -215,23 +239,29 @@ describe('RatingsService', () => {
       const result = await service.update(1, dto);
 
       expect(ratingsRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ value: 9, comment: 'Excellent' }),
+        expect.objectContaining({ value: 9, comment: "Excellent" }),
       );
       expect(result).toEqual(saved);
     });
 
-    it('throws NotFoundException when rating does not exist', async () => {
+    it("throws NotFoundException when rating does not exist", async () => {
       ratingsRepository.findOne.mockResolvedValue(null);
 
       await expect(service.update(999, { value: 5 })).rejects.toThrow(
-        new NotFoundException('Rating with ID 999 not found'),
+        new NotFoundException("Rating with ID 999 not found"),
       );
     });
   });
 
-  describe('remove', () => {
-    it('removes a rating and returns deleted confirmation', async () => {
-      const rating = { id: 1, value: 7, comment: 'Good', movieId: 1, movie: { id: 1 } };
+  describe("remove", () => {
+    it("removes a rating and returns deleted confirmation", async () => {
+      const rating = {
+        id: 1,
+        value: 7,
+        comment: "Good",
+        movieId: 1,
+        movie: { id: 1 },
+      };
       ratingsRepository.findOne.mockResolvedValue(rating);
       ratingsRepository.remove.mockResolvedValue(undefined);
 
@@ -241,11 +271,11 @@ describe('RatingsService', () => {
       expect(result).toEqual({ deleted: true });
     });
 
-    it('throws NotFoundException when rating does not exist', async () => {
+    it("throws NotFoundException when rating does not exist", async () => {
       ratingsRepository.findOne.mockResolvedValue(null);
 
       await expect(service.remove(999)).rejects.toThrow(
-        new NotFoundException('Rating with ID 999 not found'),
+        new NotFoundException("Rating with ID 999 not found"),
       );
     });
   });

@@ -1,11 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
-import { Rating } from './entities/rating.entity';
-import { CreateRatingDto } from './dto/create-rating.dto';
-import { UpdateRatingDto } from './dto/update-rating.dto';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
-import { Movie } from '../movies/entities/movie.entity';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { FindOptionsWhere, Repository } from "typeorm";
+import { Rating } from "./entities/rating.entity";
+import { CreateRatingDto } from "./dto/create-rating.dto";
+import { UpdateRatingDto } from "./dto/update-rating.dto";
+import { PaginationQueryDto } from "../common/dto/pagination-query.dto";
+import { Movie } from "../movies/entities/movie.entity";
 
 @Injectable()
 export class RatingsService {
@@ -27,10 +27,10 @@ export class RatingsService {
 
     const [data, total] = await this.ratingsRepository.findAndCount({
       where,
-      relations: ['movie'],
+      relations: ["movie"],
       skip,
       take: limit,
-      order: { createdAt: 'DESC' },
+      order: { createdAt: "DESC" },
     });
 
     return { data, total, page, limit };
@@ -39,7 +39,7 @@ export class RatingsService {
   async findOne(id: number) {
     const rating = await this.ratingsRepository.findOne({
       where: { id },
-      relations: ['movie'],
+      relations: ["movie"],
     });
     if (!rating) {
       throw new NotFoundException(`Rating with ID ${id} not found`);

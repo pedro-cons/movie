@@ -1,10 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike } from 'typeorm';
-import { Actor } from './entities/actor.entity';
-import { CreateActorDto } from './dto/create-actor.dto';
-import { UpdateActorDto } from './dto/update-actor.dto';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository, ILike } from "typeorm";
+import { Actor } from "./entities/actor.entity";
+import { CreateActorDto } from "./dto/create-actor.dto";
+import { UpdateActorDto } from "./dto/update-actor.dto";
+import { PaginationQueryDto } from "../common/dto/pagination-query.dto";
 
 @Injectable()
 export class ActorsService {
@@ -18,11 +18,11 @@ export class ActorsService {
     const skip = (page - 1) * limit;
 
     const queryBuilder = this.actorsRepository
-      .createQueryBuilder('actor')
-      .leftJoinAndSelect('actor.movies', 'movie')
+      .createQueryBuilder("actor")
+      .leftJoinAndSelect("actor.movies", "movie")
       .skip(skip)
       .take(limit)
-      .orderBy('actor.createdAt', 'DESC');
+      .orderBy("actor.createdAt", "DESC");
 
     if (search) {
       queryBuilder.where(
@@ -38,7 +38,7 @@ export class ActorsService {
   async findOne(id: number) {
     const actor = await this.actorsRepository.findOne({
       where: { id },
-      relations: ['movies'],
+      relations: ["movies"],
     });
     if (!actor) {
       throw new NotFoundException(`Actor with ID ${id} not found`);
@@ -49,7 +49,7 @@ export class ActorsService {
   async getMovies(id: number) {
     const actor = await this.actorsRepository.findOne({
       where: { id },
-      relations: ['movies'],
+      relations: ["movies"],
     });
     if (!actor) {
       throw new NotFoundException(`Actor with ID ${id} not found`);

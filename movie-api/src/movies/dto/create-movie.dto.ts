@@ -5,7 +5,7 @@ import {
   IsDateString,
   IsArray,
   IsNumber,
-} from 'class-validator';
+} from "class-validator";
 
 export class CreateMovieDto {
   @IsString()

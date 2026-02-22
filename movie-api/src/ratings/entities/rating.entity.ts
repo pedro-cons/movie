@@ -6,25 +6,25 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
-} from 'typeorm';
-import { Movie } from '../../movies/entities/movie.entity';
+} from "typeorm";
+import { Movie } from "../../movies/entities/movie.entity";
 
-@Entity('ratings')
+@Entity("ratings")
 export class Rating {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: "int" })
   value: number;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   comment: string;
 
   @Column()
   movieId: number;
 
-  @ManyToOne(() => Movie, (movie) => movie.ratings, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'movieId' })
+  @ManyToOne(() => Movie, (movie) => movie.ratings, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "movieId" })
   movie: Movie;
 
   @CreateDateColumn()

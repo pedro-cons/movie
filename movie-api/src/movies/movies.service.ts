@@ -1,11 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike, In } from 'typeorm';
-import { Movie } from './entities/movie.entity';
-import { CreateMovieDto } from './dto/create-movie.dto';
-import { UpdateMovieDto } from './dto/update-movie.dto';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
-import { Actor } from '../actors/entities/actor.entity';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository, ILike, In } from "typeorm";
+import { Movie } from "./entities/movie.entity";
+import { CreateMovieDto } from "./dto/create-movie.dto";
+import { UpdateMovieDto } from "./dto/update-movie.dto";
+import { PaginationQueryDto } from "../common/dto/pagination-query.dto";
+import { Actor } from "../actors/entities/actor.entity";
 
 @Injectable()
 export class MoviesService {
@@ -24,10 +24,10 @@ export class MoviesService {
 
     const [data, total] = await this.moviesRepository.findAndCount({
       where,
-      relations: ['actors', 'ratings'],
+      relations: ["actors", "ratings"],
       skip,
       take: limit,
-      order: { createdAt: 'DESC' },
+      order: { createdAt: "DESC" },
     });
 
     return { data, total, page, limit };
@@ -36,7 +36,7 @@ export class MoviesService {
   async findOne(id: number) {
     const movie = await this.moviesRepository.findOne({
       where: { id },
-      relations: ['actors', 'ratings'],
+      relations: ["actors", "ratings"],
     });
     if (!movie) {
       throw new NotFoundException(`Movie with ID ${id} not found`);
@@ -47,7 +47,7 @@ export class MoviesService {
   async getActors(id: number) {
     const movie = await this.moviesRepository.findOne({
       where: { id },
-      relations: ['actors'],
+      relations: ["actors"],
     });
     if (!movie) {
       throw new NotFoundException(`Movie with ID ${id} not found`);
@@ -73,9 +73,10 @@ export class MoviesService {
     Object.assign(movie, movieData);
 
     if (actorIds !== undefined) {
-      movie.actors = actorIds.length > 0
-        ? await this.actorsRepository.findBy({ id: In(actorIds) })
-        : [];
+      movie.actors =
+        actorIds.length > 0
+          ? await this.actorsRepository.findBy({ id: In(actorIds) })
+          : [];
     }
 
     return this.moviesRepository.save(movie);

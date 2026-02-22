@@ -5,10 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToMany,
-} from 'typeorm';
-import { Movie } from '../../movies/entities/movie.entity';
+} from "typeorm";
+import { Movie } from "../../movies/entities/movie.entity";
 
-@Entity('actors')
+@Entity("actors")
 export class Actor {
   @PrimaryGeneratedColumn()
   id: number;
@@ -19,7 +19,7 @@ export class Actor {
   @Column()
   lastName: string;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: "date", nullable: true })
   birthDate: string;
 
   @ManyToMany(() => Movie, (movie) => movie.actors)

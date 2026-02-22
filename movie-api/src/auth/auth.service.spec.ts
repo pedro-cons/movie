@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ConflictException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
-import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { ConflictException } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import * as bcrypt from "bcrypt";
+import { AuthService } from "./auth.service";
+import { UsersService } from "../users/users.service";
 
-jest.mock('bcrypt');
+jest.mock("bcrypt");
 
 const mockUsersService = {
   findByUsername: jest.fn(),
@@ -16,7 +16,7 @@ const mockJwtService = {
   sign: jest.fn(),
 };
 
-describe('AuthService', () => {
+describe("AuthService", () => {
   let service: AuthService;
 
   beforeEach(async () => {
@@ -41,54 +41,60 @@ describe('AuthService', () => {
     jest.clearAllMocks();
   });
 
-  describe('validateUser', () => {
-    it('returns user data without password when credentials are valid', async () => {
-      const user = { id: 1, username: 'alice', password: 'hashed_password' };
+  describe("validateUser", () => {
+    it("returns user data without password when credentials are valid", async () => {
+      const user = { id: 1, username: "alice", password: "hashed_password" };
       mockUsersService.findByUsername.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      const result = await service.validateUser('alice', 'correct_password');
+      const result = await service.validateUser("alice", "correct_password");
 
-      expect(mockUsersService.findByUsername).toHaveBeenCalledWith('alice');
-      expect(bcrypt.compare).toHaveBeenCalledWith('correct_password', 'hashed_password');
-      expect(result).toEqual({ id: 1, username: 'alice' });
-      expect(result).not.toHaveProperty('password');
+      expect(mockUsersService.findByUsername).toHaveBeenCalledWith("alice");
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        "correct_password",
+        "hashed_password",
+      );
+      expect(result).toEqual({ id: 1, username: "alice" });
+      expect(result).not.toHaveProperty("password");
     });
 
-    it('returns null when the password does not match', async () => {
-      const user = { id: 1, username: 'alice', password: 'hashed_password' };
+    it("returns null when the password does not match", async () => {
+      const user = { id: 1, username: "alice", password: "hashed_password" };
       mockUsersService.findByUsername.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      const result = await service.validateUser('alice', 'wrong_password');
+      const result = await service.validateUser("alice", "wrong_password");
 
       expect(result).toBeNull();
     });
 
-    it('returns null when the user does not exist', async () => {
+    it("returns null when the user does not exist", async () => {
       mockUsersService.findByUsername.mockResolvedValue(null);
 
-      const result = await service.validateUser('unknown', 'any_password');
+      const result = await service.validateUser("unknown", "any_password");
 
       expect(result).toBeNull();
       expect(bcrypt.compare).not.toHaveBeenCalled();
     });
   });
 
-  describe('login', () => {
-    it('returns an access_token signed with username and id as sub', async () => {
-      const user = { id: 1, username: 'alice' };
-      mockJwtService.sign.mockReturnValue('signed.jwt.token');
+  describe("login", () => {
+    it("returns an access_token signed with username and id as sub", async () => {
+      const user = { id: 1, username: "alice" };
+      mockJwtService.sign.mockReturnValue("signed.jwt.token");
 
       const result = await service.login(user);
 
-      expect(mockJwtService.sign).toHaveBeenCalledWith({ username: 'alice', sub: 1 });
-      expect(result).toEqual({ access_token: 'signed.jwt.token' });
+      expect(mockJwtService.sign).toHaveBeenCalledWith({
+        username: "alice",
+        sub: 1,
+      });
+      expect(result).toEqual({ access_token: "signed.jwt.token" });
     });
 
-    it('uses the user id as the sub claim', async () => {
-      const user = { id: 42, username: 'bob' };
-      mockJwtService.sign.mockReturnValue('another.token');
+    it("uses the user id as the sub claim", async () => {
+      const user = { id: 42, username: "bob" };
+      mockJwtService.sign.mockReturnValue("another.token");
 
       await service.login(user);
 
@@ -98,48 +104,56 @@ describe('AuthService', () => {
     });
   });
 
-  describe('register', () => {
-    it('hashes the password and creates a new user', async () => {
+  describe("register", () => {
+    it("hashes the password and creates a new user", async () => {
       mockUsersService.findByUsername.mockResolvedValue(null);
-      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed_password');
-      mockUsersService.create.mockResolvedValue({ id: 1, username: 'alice' });
+      (bcrypt.hash as jest.Mock).mockResolvedValue("hashed_password");
+      mockUsersService.create.mockResolvedValue({ id: 1, username: "alice" });
 
-      const result = await service.register('alice', 'password123');
+      const result = await service.register("alice", "password123");
 
-      expect(mockUsersService.findByUsername).toHaveBeenCalledWith('alice');
-      expect(bcrypt.hash).toHaveBeenCalledWith('password123', 10);
-      expect(mockUsersService.create).toHaveBeenCalledWith('alice', 'hashed_password');
-      expect(result).toEqual({ id: 1, username: 'alice' });
+      expect(mockUsersService.findByUsername).toHaveBeenCalledWith("alice");
+      expect(bcrypt.hash).toHaveBeenCalledWith("password123", 10);
+      expect(mockUsersService.create).toHaveBeenCalledWith(
+        "alice",
+        "hashed_password",
+      );
+      expect(result).toEqual({ id: 1, username: "alice" });
     });
 
-    it('returns only id and username without hashed password', async () => {
+    it("returns only id and username without hashed password", async () => {
       mockUsersService.findByUsername.mockResolvedValue(null);
-      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed_password');
+      (bcrypt.hash as jest.Mock).mockResolvedValue("hashed_password");
       mockUsersService.create.mockResolvedValue({
         id: 1,
-        username: 'alice',
-        password: 'hashed_password',
+        username: "alice",
+        password: "hashed_password",
       });
 
-      const result = await service.register('alice', 'password123');
+      const result = await service.register("alice", "password123");
 
-      expect(result).toEqual({ id: 1, username: 'alice' });
-      expect(result).not.toHaveProperty('password');
+      expect(result).toEqual({ id: 1, username: "alice" });
+      expect(result).not.toHaveProperty("password");
     });
 
-    it('throws ConflictException when username already exists', async () => {
-      const existingUser = { id: 1, username: 'alice', password: 'hashed' };
+    it("throws ConflictException when username already exists", async () => {
+      const existingUser = { id: 1, username: "alice", password: "hashed" };
       mockUsersService.findByUsername.mockResolvedValue(existingUser);
 
-      await expect(service.register('alice', 'password123')).rejects.toThrow(
-        new ConflictException('Username already exists'),
+      await expect(service.register("alice", "password123")).rejects.toThrow(
+        new ConflictException("Username already exists"),
       );
     });
 
-    it('does not create user when username is already taken', async () => {
-      mockUsersService.findByUsername.mockResolvedValue({ id: 1, username: 'alice' });
+    it("does not create user when username is already taken", async () => {
+      mockUsersService.findByUsername.mockResolvedValue({
+        id: 1,
+        username: "alice",
+      });
 
-      await expect(service.register('alice', 'password123')).rejects.toThrow(ConflictException);
+      await expect(service.register("alice", "password123")).rejects.toThrow(
+        ConflictException,
+      );
 
       expect(bcrypt.hash).not.toHaveBeenCalled();
       expect(mockUsersService.create).not.toHaveBeenCalled();
